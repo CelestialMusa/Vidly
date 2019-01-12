@@ -11,7 +11,7 @@ namespace Vidly.Controllers
     public class MoviesController : Controller
     {
         // GET: Movies/Random
-        public ActionResult Random()
+        public ActionResult Index()
         {
             var movie = new Movie() { Name = "Sharknado!"};
 
@@ -20,19 +20,25 @@ namespace Vidly.Controllers
             //return new EmptyResult();
             //return RedirectToAction("Index", "Home", new { page = 1, sortBy = "name" });
 
-            var customers = new List<Customer>()
+            var movies = new List<Movie>
             {
-                new Customer{Name = "Customer 1"},
-                new Customer{Name = "Customer 1"}
+                new Movie() { Id = 1,Name = "Sharknado!"},
+                new Movie() { Id = 2,Name = "Matrix"},
+                new Movie() { Id = 3,Name = "Muppets: Power Rangers"}
             };
 
-            var RandomViewModel = new RandomMovieViewModel()
+            var movieDetails = new MovieDetails()
             {
-                Movie = movie,
-                Customers = customers
+               Movies = movies
             };
 
-            return View(RandomViewModel);
+            return View(movieDetails);
+        }
+
+        [Route("Movies/Index/{pageIndex}/{sortBy}")]
+        public ActionResult Index(int? pageIndex, string sortBy)
+        {
+            return Content(String.Format("PageIndex={0}&sortBy={1}", pageIndex ?? 1, String.IsNullOrWhiteSpace(sortBy) ? "Name" : sortBy));
         }
 
         public ActionResult edit(int id)
@@ -40,15 +46,22 @@ namespace Vidly.Controllers
             return Content("Id=" + id);
         }
 
-        public ActionResult Index(int? pageIndex, string sortBy)
-        {
-            return Content(String.Format("PageIndex={0}&sortBy={1}", pageIndex ?? 1, String.IsNullOrWhiteSpace(sortBy) ? "Name" : sortBy));
-        }
-
-        [Route("movies/released/{year:regex(\\d{4}):range(1970, 2018)}/{month:regex(\\d{2}):range(1,12)}")]
+        [Route("Movies/Released/{year:regex(\\d{4}):range(1970, 2018)}/{month:regex(\\d{2}):range(1,12)}")]
         public ActionResult ByReleaseDate (int year, byte month)
         {
             return Content(year + "/" + month);
+        }
+
+        [Route("Movies/MovieDetails/{Id:regex(\\d)}/{name}")]
+        public ActionResult MovieDetails(int Id,string name)
+        {
+            var movie = new Movie()
+            {
+                Id = Id,
+                Name = name 
+            };
+
+            return View(movie);
         }
     }
 }
