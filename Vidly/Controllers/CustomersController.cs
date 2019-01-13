@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using Vidly.Models;
 using System.Data.Entity;
+using Vidly.ViewModels;
 
 namespace Vidly.Controllers
 {
@@ -29,6 +30,57 @@ namespace Vidly.Controllers
             var Customers = _dbContext.Customers.Include(c => c.MembershipType).ToList();
 
             return View(Customers);
+        }
+
+        public ViewResult New()
+        {
+            var membershipTypes = _dbContext.MembershipTypes.ToList();
+
+            var viewModel = new CustomerFormViewModel
+            {
+                MembershipTypes = membershipTypes
+            };
+
+            return View("CustomerForm",viewModel);
+        }
+
+        [HttpPost]
+        public ActionResult Save(Customer customer)
+        {
+            if(customer.Id == 0)
+            {
+                _dbContext.Customers.Add(customer);
+            }
+            else
+            {
+                var editedCustomer = _dbContext.Customers.Single(c => c.Id == customer.Id);
+
+                editedCustomer.Name = customer.Name;
+                editedCustomer.BirthDate = customer.BirthDate;
+                editedCustomer.MembershipTypeId = customer.MembershipTypeId;
+                editedCustomer.isSubscribedToNewsLetter = customer.isSubscribedToNewsLetter;
+            }
+
+            _dbContext.SaveChanges();
+
+            return RedirectToAction("Index", "Customers");
+        }
+
+        
+        public ActionResult Edit(int Id)
+        {
+            var customer = _dbContext.Customers.SingleOrDefault(c => c.Id == Id);
+
+            if (customer == null)
+                return HttpNotFound();
+
+            var viewModel = new CustomerFormViewModel()
+            {
+                Customer = customer,
+                MembershipTypes = _dbContext.MembershipTypes.ToList()
+            };
+
+            return View("CustomerForm", viewModel);
         }
 
         public ActionResult Details()
