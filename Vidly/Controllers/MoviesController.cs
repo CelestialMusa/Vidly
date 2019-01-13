@@ -4,35 +4,36 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Vidly.Models;
-using Vidly.ViewModels;
+using System.Data.Entity;
 
 namespace Vidly.Controllers
 {
     public class MoviesController : Controller
     {
+        private ApplicationDbContext _dbContext;
+
+        public MoviesController()
+        {
+            _dbContext = new ApplicationDbContext();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            _dbContext.Dispose();
+        }
         // GET: Movies/Random
         public ActionResult Index()
         {
-            var movie = new Movie() { Name = "Sharknado!"};
+            //var movies = _dbContext.Movi
 
             //return Content("Hello World!");
             //return HttpNotFound();
             //return new EmptyResult();
             //return RedirectToAction("Index", "Home", new { page = 1, sortBy = "name" });
 
-            var movies = new List<Movie>
-            {
-                new Movie() { Id = 1,Name = "Sharknado!"},
-                new Movie() { Id = 2,Name = "Matrix"},
-                new Movie() { Id = 3,Name = "Muppets: Power Rangers"}
-            };
+            var movies = _dbContext.Movies.Include(c => c.GenreType).ToList();
 
-            var movieDetails = new MovieDetails()
-            {
-               Movies = movies
-            };
-
-            return View(movieDetails);
+            return View(movies);
         }
 
         [Route("Movies/Index/{pageIndex}/{sortBy}")]
@@ -52,14 +53,10 @@ namespace Vidly.Controllers
             return Content(year + "/" + month);
         }
 
-        [Route("Movies/MovieDetails/{Id:regex(\\d)}/{name}")]
-        public ActionResult MovieDetails(int Id,string name)
+        [Route("Movies/MovieDetails/{Id:regex(\\d)}")]
+        public ActionResult MovieDetails(int Id)
         {
-            var movie = new Movie()
-            {
-                Id = Id,
-                Name = name 
-            };
+            var movie = _dbContext.Movies.Include(c => c.GenreType).SingleOrDefault(c => c.Id == Id);
 
             return View(movie);
         }
