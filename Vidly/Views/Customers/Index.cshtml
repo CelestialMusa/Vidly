@@ -1,4 +1,4 @@
-﻿@model Vidly.ViewModels.CustomerDetails
+﻿@model IEnumerable<Vidly.Models.Customer>
 @{
     ViewBag.Title = "View";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -6,21 +6,31 @@
 
 <h2>Customers</h2>
 
-<table class="table table-bordered table-hover">
-    <thead>
-        <tr>
-            <th>Customer</th>
-        </tr>
-    </thead>
-    <tbody>
-
-        @foreach (var customer in Model.Customers)
-        {
+@if (!Model.Any())
+{
+    <p>We don't have any customers yet</p>
+}
+else
+{
+    <table class="table table-bordered table-hover">
+        <thead>
             <tr>
-                <td>
-                    @Html.ActionLink(@customer.Name, "customerDetails", "Customers", new { Id = customer.Id , Name = customer.Name}, null)
-                </td>
+                <th>Customer</th>
+                <th>Membership Type</th>
             </tr>
-        }
+        </thead>
+        <tbody>
+            @foreach (var customer in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.ActionLink(@customer.Name, "customerDetails", "Customers", new { Id = customer.Id}, null)
+                    </td>
+                    <td>
+                        @customer.MembershipType.Name
+                    </td>
+                </tr>
+            }
         </tbody>
-</table>
+    </table>
+}
