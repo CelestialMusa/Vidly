@@ -5,28 +5,41 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>@HttpContext.Current.Request.RequestContext.RouteData.Values["action"].ToString() Movie </h2>
+@*<h2>@HttpContext.Current.Request.RequestContext.RouteData.Values["action"].ToString() Movie </h2>*@
+<h2>@Model.Title</h2>
 
 @using (Html.BeginForm("Save", "Movies"))
 {
+    @Html.ValidationSummary(true, "Please fix all required fields errors.")
     <Div class="form-group">
         @Html.LabelFor(m => m.Movie.Name)
-        @Html.TextBoxFor(m => m.Movie.Name, new { @class = "form-control"})
+        @Html.TextBoxFor(m => m.Movie.Name, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Movie.Name)
     </Div>
     <Div class="form-group">
         @Html.LabelFor(m => m.Movie.ReleaseDate)
-        @Html.TextBoxFor(m => m.Movie.ReleaseDate , new { @class = "form-control"})
+        @Html.TextBoxFor(m => m.Movie.ReleaseDate, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Movie.ReleaseDate)
+
     </Div>
     <Div class="form-group">
         @Html.LabelFor(m => m.Movie.GenreType.Id, "Movie Genre")
-        @Html.DropDownListFor(m => m.Movie.GenreType.Id, new SelectList(Model.GenreTypes, "Id", "Name"), "Select Movie Genre", new { @class = "form-control"})
+        @Html.DropDownListFor(m => m.Movie.GenreType.Id, new SelectList(Model.GenreTypes, "Id", "Name"), "Select Movie Genre", new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Movie.GenreType.Id,"Movie Genre field is required")
+
     </Div>
     <Div class="form-group">
         @Html.LabelFor(m => m.Movie.NumberInStock)
         @Html.TextBoxFor(m => m.Movie.NumberInStock, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Movie.NumberInStock)
     </Div>
-
+    @Html.AntiForgeryToken()
     @Html.HiddenFor(m => m.Movie.Id)
     <button type="submit" class="btn btn-primary">Submit</button>
+}
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
 }
 
