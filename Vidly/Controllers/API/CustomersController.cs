@@ -1,10 +1,12 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Results;
+using Vidly.DTOs;
 using Vidly.Models;
 
 namespace Vidly.Controllers.API
@@ -20,48 +22,55 @@ namespace Vidly.Controllers.API
 
         
         [HttpGet]
-        public IEnumerable<Customer> GetCustomers()
+        public IHttpActionResult GetCustomers()
         {
-            return _dbContext.Customers.ToList();
+            return Ok(_dbContext.Customers.ToList().Select(Mapper.Map<Customer, CustomerDTO>));
         }
 
         //Get /api/customers/{Id}
         [HttpGet]
-        public Customer GetCustomer(int Id)
+        public IHttpActionResult GetCustomer(int Id)
         {
-            return _dbContext.Customers.SingleOrDefault(c => c.Id == Id) ?? throw new HttpResponseException(HttpStatusCode.NotFound);
+            var customer = _dbContext.Customers.SingleOrDefault(c => c.Id == Id);
+
+            if (customer == null)
+                NotFound();
+
+            return Ok(Mapper.Map<Customer, CustomerDTO>(customer));
         }
 
-        //Post /api/customers/{customer}
+        //Post /api/customers/{CustomerDTO}
         [HttpPost]
-        public Customer CreateCustomer(Customer customer)
+        public IHttpActionResult CreateCustomer(CustomerDTO customerDTO)
         {
             if (!ModelState.IsValid)
-                throw new HttpResponseException(HttpStatusCode.BadRequest);
+                BadRequest();
+
+            var customer = Mapper.Map<CustomerDTO, Customer>(customerDTO);
+
+            customerDTO.Id = customer.Id;
 
             _dbContext.Customers.Add(customer);
             _dbContext.SaveChanges();
 
-            return customer;
+            return Created(new Uri(Request.RequestUri+"/"+customer.Id),customerDTO);
         }
 
         // Put /api/customers
         [HttpPut]
-        public void PutUpdateCustomer(Customer customer)
+        public void PutUpdateCustomer(CustomerDTO CustomerDTO)
         {
             if (!ModelState.IsValid)
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             
-            var db_customer = _dbContext.Customers.Single(c => c.Id == customer.Id);
+            var customer = _dbContext.Customers.Single(c => c.Id == CustomerDTO.Id);
 
-            if (db_customer == null)
+            if (customer == null)
                 throw new HttpResponseException(HttpStatusCode.NotFound);
 
-            db_customer.Name = customer.Name;
-            db_customer.MembershipType = customer.MembershipType;
-            db_customer.MembershipTypeId = customer.MembershipTypeId;
-            db_customer.isSubscribedToNewsLetter = customer.isSubscribedToNewsLetter;
-            db_customer.BirthDate = customer.BirthDate;
+            CustomerDTO.Id = customer.Id;
+
+            Mapper.Map(CustomerDTO, customer);
 
             _dbContext.SaveChanges();
         }
