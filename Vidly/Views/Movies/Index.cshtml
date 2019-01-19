@@ -5,10 +5,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@*
-    Lists a customers who rented out a movie by title.
-*@
-
 <h2>Movies</h2>
 
 @Html.ActionLink("New Movie", "New", "Movies", new { @class = "btn btn-primary"})
@@ -22,20 +18,13 @@
         </tr>
     </thead>
     <tbody>
-        @*@foreach(var movie in Model)
-        {
-            <tr>
-                <td>
-                    @Html.ActionLink(@movie.Name, "Edit", "Movies", new { Id = movie.Id}, null)
-                </td>
-            </tr>
-        }*@
     </tbody>
 </table>
 
 @section scripts
 {
     <script>
+        //Code Repeatition violets the DRY principle. Refactor code to be more re-useable.
         $(document).ready(function () {
             var table = $("#movies").DataTable({
                 ajax: {
@@ -46,7 +35,7 @@
                     {
                         data: "Name",
                         render: function (data, type, movie) {
-                            return "<a href='edit/" + movie.Id + "'>" + movie.name + "</a>";
+                            return "<a href='movies/edit/Id" /*+ movie.Id */+ "'>" + movie.name + "</a>";
                         }
                     },
                     {
@@ -60,22 +49,21 @@
                     }
                 ]
             });
-        });
 
+            $("#movies").on("click", ".js-delete", function () {
+                var linkButton = $(this);
 
-        $("#movies").on("click", ".js-delete", function () {
-            var linkButton = $(this);
-
-            bootbox.confirm("Are you sure you want to delete this movie?", function (result) {
-                if (result) {
-                    $.ajax({
-                        url: "/api/movies/DeleteMovie/" + linkButton.attr("data-movie-id"),
-                        method: "DELETE",
-                        success: function () {
-                            table.row(linkButton.parents("tr")).remove().draw();
-                        }
-                    });
-                }
+                bootbox.confirm("Are you sure you want to delete this movie?", function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: "/api/movies/DeleteMovie/" + linkButton.attr("data-movie-id"),
+                            method: "DELETE",
+                            success: function () {
+                                table.row(linkButton.parents("tr")).remove().draw();
+                            }
+                        });
+                    }
+                });
             });
         });
     </script>

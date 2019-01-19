@@ -25,15 +25,9 @@ namespace Vidly.Controllers.API
         [HttpGet]
         public IHttpActionResult GetMovies()
         {
-            var movie = _dbContext.Movies.Include(m => m.GenreType).ToList();
-               
-            var movieDTO = movie.Select(Mapper.Map<Movie, MovieDTO>);
-
-            //return Ok(_dbContext.Movies
-            //    .Include(c => c.GenreType)
-            //    .ToList().Select(Mapper.Map<Movie, MovieDTO>));
-
-            return Ok(movieDTO);
+            return Ok(_dbContext.Movies
+                .Include(c => c.GenreType)
+                .ToList().Select(Mapper.Map<Movie, MovieDTO>));
         }
 
         [Route("api/movies/DeleteMovie/{Id}")]

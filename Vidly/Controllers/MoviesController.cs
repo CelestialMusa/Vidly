@@ -26,15 +26,6 @@ namespace Vidly.Controllers
         //GET: Movies/Random
         public ActionResult Index()
         {
-            //var movies = _dbContext.Movi
-
-            //return Content("Hello World!");
-            //return HttpNotFound();
-            //return new EmptyResult();
-            //return RedirectToAction("Index", "Home", new { page = 1, sortBy = "name" });
-
-            //var movies = _dbContext.Movies.Include(c => c.GenreType).ToList();
-
             return View();
         }
 
@@ -50,6 +41,7 @@ namespace Vidly.Controllers
             return View("MovieForm", viewModel);
         }
 
+        [Route("Movies/edit/{Id}")]
         public ActionResult Edit(int Id)
         {
             var movie = _dbContext.Movies.Single(m => m.Id == Id);
@@ -95,26 +87,6 @@ namespace Vidly.Controllers
             }
 
             return RedirectToAction("Index", "Movies");
-        }
-
-        [Route("Movies/Index/{pageIndex}/{sortBy}")]
-        public ActionResult Index(int? pageIndex, string sortBy)
-        {
-            return Content(String.Format("PageIndex={0}&sortBy={1}", pageIndex ?? 1, String.IsNullOrWhiteSpace(sortBy) ? "Name" : sortBy));
-        }
-
-        [Route("Movies/Released/{year:regex(\\d{4}):range(1970, 2018)}/{month:regex(\\d{2}):range(1,12)}")]
-        public ActionResult ByReleaseDate (int year, byte month)
-        {
-            return Content(year + "/" + month);
-        }
-
-        [Route("Movies/MovieDetails/{Id:regex(\\d)}")]
-        public ActionResult MovieDetails(int Id)
-        {
-            var movie = _dbContext.Movies.Include(c => c.GenreType).SingleOrDefault(c => c.Id == Id);
-
-            return View(movie);
         }
     }
 }
