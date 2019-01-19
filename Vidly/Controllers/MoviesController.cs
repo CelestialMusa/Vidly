@@ -23,7 +23,7 @@ namespace Vidly.Controllers
         {
             _dbContext.Dispose();
         }
-        // GET: Movies/Random
+        //GET: Movies/Random
         public ActionResult Index()
         {
             //var movies = _dbContext.Movi
@@ -33,9 +33,9 @@ namespace Vidly.Controllers
             //return new EmptyResult();
             //return RedirectToAction("Index", "Home", new { page = 1, sortBy = "name" });
 
-            var movies = _dbContext.Movies.Include(c => c.GenreType).ToList();
+            //var movies = _dbContext.Movies.Include(c => c.GenreType).ToList();
 
-            return View(movies);
+            return View();
         }
 
         public ViewResult New()
