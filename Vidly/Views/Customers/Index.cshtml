@@ -6,15 +6,6 @@
 
 <h2>Customers</h2>
 
-@*@if (!Model.Any())
-{
-    <p>We don't have any customers yet</p>
-}
-else
-{
-    
-}*@
-
 <table id="customers" class="table table-bordered table-hover">
     <thead>
         <tr>
@@ -24,20 +15,6 @@ else
         </tr>
     </thead>
     <tbody>
-        @*@foreach (var customer in Model)
-        {
-            <tr>
-                <td>
-                    @Html.ActionLink(@customer.Name, "Edit", "Customers", new { Id = customer.Id }, null)
-                </td>
-                <td>
-                    @customer.MembershipType.Name
-                </td>
-                <td>
-                    <button data-customer-id="@customer.Id" class="btn-link js-delete">Delete</button>
-                </td>
-            </tr>
-        }*@
     </tbody>
 </table>
 
@@ -45,7 +22,9 @@ else
 {
     <script>
         $(document).ready(function () {
-            $("#customers").DataTable({
+            //Data tables work best with a few thousand of data rows. There are major perfomance issues for larger dataset if we're using client-side processing.
+            //Remeber to enable and implement server-side data processing for all sorting and searching operations to maintain user experience.
+            var table = $("#customers").DataTable({
                 ajax: {
                     url: "/api/customers",
                     dataSrc: ""
@@ -58,7 +37,7 @@ else
                         }
                     },
                     {
-                        data: "name"
+                        data: "membershipType.name"
                     },
                     {
                         data: "id",
@@ -69,6 +48,9 @@ else
                 ]
             });
 
+
+            //Seperation of concerns: This file processes data access and properties of the view.
+            //Remember to refactor the code accordingly as maintaining this will be a pain.
             $("#customers").on("click",".js-delete", function () {
                 var button = $(this);
 
@@ -78,7 +60,7 @@ else
                             url: "/api/customers/" + button.attr("data-customer-id"),
                             method: "DELETE",
                             success: function () {
-                                button.parents("tr").remove();
+                                table.row(button.parents("tr")).remove().draw();
                             }
                         });
                     }
